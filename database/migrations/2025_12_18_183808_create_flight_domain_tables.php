@@ -52,8 +52,9 @@ return new class extends Migration
             $table->foreignId('aircraft_id')->nullable()->constrained('aircraft')->nullOnDelete();
             $table->foreignId('origin_airport_id')->constrained('airports')->cascadeOnDelete();
             $table->foreignId('destination_airport_id')->constrained('airports')->cascadeOnDelete();
-            $table->timestamp('departure_time');
-            $table->timestamp('arrival_time');
+            $table->dateTime('departure_time');
+            $table->dateTime('arrival_time');
+            
             $table->unsignedInteger('duration_minutes');
             $table->unsignedTinyInteger('stops')->default(0);
             $table->json('layover_details')->nullable();
