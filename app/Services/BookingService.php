@@ -9,9 +9,7 @@ use App\Enums\PaymentStatus;
 use App\Interfaces\Repositories\BookingRepositoryInterface;
 use App\Interfaces\Repositories\FlightRepositoryInterface;
 use App\Interfaces\Repositories\SeatRepositoryInterface;
-use App\Models\Booking;
 use App\Models\BookingDetail;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 
@@ -62,7 +60,8 @@ class BookingService
         $seatModifiers = 0;
         if (isset($data['seat_ids'])) {
             foreach ($data['seat_ids'] as $seatId) {
-                $seat = $this->seatRepository->find($seatId);
+                // Cast UUID to string
+                $seat = $this->seatRepository->find((string) $seatId);
                 if ($seat) {
                     $seatModifiers += $seat->price_modifier_egp;
                 }
@@ -125,7 +124,7 @@ class BookingService
                 $booking = $this->bookingRepository->create([
                     'user_id' => $userId,
                     'category' => 'flights',
-                    'item_id' => 0, // Will be updated
+                    'item_id' => 0,
                     'total_price' => $summary['pricing']['total_price'],
                     'payment_status' => PaymentStatus::PENDING->value,
                     'status' => BookingStatus::PENDING->value,
@@ -145,9 +144,9 @@ class BookingService
                     ],
                 ]);
 
-                // Book seats
+                // Book seats - Cast UUID to string
                 foreach ($summary['seat_ids'] as $seatId) {
-                    $this->seatRepository->bookSeat($seatId);
+                    $this->seatRepository->bookSeat((string) $seatId);
                 }
 
                 // Clear cache
@@ -169,6 +168,7 @@ class BookingService
     public function confirmBooking(int $bookingId): bool
     {
         $this->bookingRepository->updatePaymentStatus($bookingId, PaymentStatus::SUCCEEDED->value);
+
         return $this->bookingRepository->updateStatus($bookingId, BookingStatus::CONFIRMED->value);
     }
 
@@ -186,7 +186,8 @@ class BookingService
         // Release seats if any
         if ($booking->detail && isset($booking->detail->meta['seat_ids'])) {
             foreach ($booking->detail->meta['seat_ids'] as $seatId) {
-                $seat = $this->seatRepository->find($seatId);
+                // Cast UUID to string
+                $seat = $this->seatRepository->find((string) $seatId);
                 if ($seat) {
                     $seat->update(['is_available' => true]);
                 }
