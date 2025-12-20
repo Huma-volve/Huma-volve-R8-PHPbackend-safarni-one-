@@ -197,9 +197,8 @@ class FlightApiTest extends TestCase
         $flight1 = $this->createFlight();
         $flight2 = $this->createFlight();
 
-        $response = $this->getJson('/api/flights/compare?' . http_build_query([
-            'flight_ids' => [$flight1->id, $flight2->id],
-        ]));
+        // Use proper array syntax for query string
+        $response = $this->getJson('/api/flights/compare?flight_ids[]=' . $flight1->id . '&flight_ids[]=' . $flight2->id);
 
         $response->assertStatus(200)
             ->assertJsonStructure([
@@ -225,9 +224,7 @@ class FlightApiTest extends TestCase
     {
         $flight = $this->createFlight();
 
-        $response = $this->getJson('/api/flights/compare?' . http_build_query([
-            'flight_ids' => [$flight->id],
-        ]));
+        $response = $this->getJson('/api/flights/compare?flight_ids[]=' . $flight->id);
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['flight_ids']);
@@ -240,9 +237,8 @@ class FlightApiTest extends TestCase
             $flights->push($this->createFlight());
         }
 
-        $response = $this->getJson('/api/flights/compare?' . http_build_query([
-            'flight_ids' => $flights->pluck('id')->toArray(),
-        ]));
+        $queryString = $flights->map(fn ($f) => 'flight_ids[]=' . $f->id)->implode('&');
+        $response = $this->getJson('/api/flights/compare?' . $queryString);
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['flight_ids']);
