@@ -5,6 +5,7 @@ namespace Database\Factories;
 use App\Enums\BookingStatus;
 use App\Enums\PaymentStatus;
 use App\Models\Booking;
+use App\Models\Category;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -24,7 +25,10 @@ class BookingFactory extends Factory
     {
         return [
             'user_id' => User::factory(),
-            'category' => 'flights',
+            'category' => fn () => Category::firstOrCreate(
+                ['key' => 'flights'],
+                ['title' => 'Flights', 'description' => 'Book flights to anywhere.']
+            )->key,
             'item_id' => $this->faker->randomNumber(5),
             'total_price' => $this->faker->numberBetween(200000, 3000000),
             'payment_status' => PaymentStatus::PENDING->value,
