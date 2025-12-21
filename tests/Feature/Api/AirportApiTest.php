@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api;
 
+use App\Enums\UserRole;
 use App\Models\Airport;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -19,8 +20,8 @@ class AirportApiTest extends TestCase
     {
         parent::setUp();
 
-        $this->admin = User::factory()->create(['is_admin' => true]);
-        $this->user = User::factory()->create(['is_admin' => false]);
+        $this->admin = User::factory()->create(['role' => UserRole::ADMIN]);
+        $this->user = User::factory()->create(['role' => UserRole::USER]);
     }
 
     /*

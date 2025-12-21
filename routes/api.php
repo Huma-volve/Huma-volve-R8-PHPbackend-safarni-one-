@@ -2,7 +2,9 @@
 
 use App\Http\Controllers\Api\AirportController;
 use App\Http\Controllers\Api\AirlineController;
+use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\FlightController;
+use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\SeatController;
 use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\PassengerController;
@@ -17,6 +19,34 @@ use Illuminate\Support\Facades\Route;
 
 // Health check
 Route::get('/health', fn() => response()->json(['status' => 'ok', 'timestamp' => now()->toISOString()]));
+
+/*
+|--------------------------------------------------------------------------
+| Authentication Routes (Public)
+|--------------------------------------------------------------------------
+*/
+
+Route::prefix('auth')->group(function () {
+    // Registration & Verification
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/verify', [AuthController::class, 'verifyOtp']);
+
+    // Login
+    Route::post('/login', [AuthController::class, 'login']);
+
+    // Google OAuth
+    Route::get('/google', [AuthController::class, 'googleRedirect']);
+    Route::get('/google/callback', [AuthController::class, 'googleCallback']);
+
+    // Password Reset
+    Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+    Route::post('/verify-reset-otp', [AuthController::class, 'verifyPasswordResetOtp']);
+    Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+
+    // OTP Resend (with rate limiting)
+    Route::post('/resend-otp', [AuthController::class, 'resendOtp'])
+        ->middleware('throttle:otp-resend');
+});
 
 /*
 |--------------------------------------------------------------------------
@@ -58,8 +88,24 @@ Route::prefix('seats')->group(function () {
 */
 
 Route::middleware('auth:sanctum')->group(function () {
-    // Current User
+    // Logout
+    Route::post('/auth/logout', [AuthController::class, 'logout']);
+
+    // Current User (legacy endpoint)
     Route::get('/user', fn(Request $request) => $request->user());
+
+    // Profile Management
+    Route::prefix('profile')->group(function () {
+        Route::get('/', [ProfileController::class, 'show']);
+        Route::put('/', [ProfileController::class, 'update']);
+
+        // These routes require email verification
+        Route::middleware('verified')->group(function () {
+            Route::put('/password', [ProfileController::class, 'changePassword']);
+            Route::post('/deactivate', [ProfileController::class, 'deactivate']);
+            Route::delete('/', [ProfileController::class, 'delete']);
+        });
+    });
 
     // Seat Locking
     Route::post('/seats/lock', [SeatController::class, 'lock']);
@@ -92,7 +138,7 @@ Route::middleware('auth:sanctum')->group(function () {
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
+Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(function () {
     // Airports Management
     Route::post('/airports', [AirportController::class, 'store']);
     Route::put('/airports/{airport}', [AirportController::class, 'update']);

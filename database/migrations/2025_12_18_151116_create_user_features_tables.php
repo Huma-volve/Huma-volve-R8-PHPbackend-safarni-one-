@@ -9,49 +9,36 @@ return new class extends Migration
     public function up(): void
     {
         // 1. OTP Codes
-        Schema::create('otp_codes', function (Blueprint $table) {
+        Schema::create('otps', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->string('code');
-            
-            // Added purpose
-            $table->string('purpose')->default('login'); 
-            $table->boolean('used')->default(false); 
-            
-            $table->timestamp('expires_at')->nullable(); 
+            $table->string('email')->index();
+            $table->string('code', 4);
+            $table->string('type'); // verification, password_reset
+            $table->boolean('is_used')->default(false);
+            $table->timestamp('expires_at');
             $table->timestamps();
+
+            // Index for quick lookups
+            $table->index(['email', 'type', 'is_used']);
         });
 
-        // 2. Social Identities
-        Schema::create('social_identities', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->string('provider'); 
-            
-            $table->string('provider_user_id'); 
-            $table->string('email')->nullable(); 
-            $table->json('profile_json')->nullable(); 
-            
-            $table->timestamps();
-        });
-
-        // 3. Reviews
+        // 2. Reviews
         Schema::create('reviews', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->string('category'); 
+            $table->string('category');
             $table->unsignedBigInteger('item_id');
-             
-            $table->string('title')->nullable(); 
-            $table->text('comment')->nullable(); 
-            $table->integer('rating')->default(0); 
-            $table->json('photos_json')->nullable(); 
-            $table->string('status')->default('pending')->index(); 
-            
+
+            $table->string('title')->nullable();
+            $table->text('comment')->nullable();
+            $table->integer('rating')->default(0);
+            $table->json('photos_json')->nullable();
+            $table->string('status')->default('pending')->index();
+
             $table->timestamps();
         });
 
-        // 4. Favorites
+        // 3. Favorites
         Schema::create('favorites', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
@@ -65,7 +52,6 @@ return new class extends Migration
     {
         Schema::dropIfExists('favorites');
         Schema::dropIfExists('reviews');
-        Schema::dropIfExists('social_identities');
-        Schema::dropIfExists('otp_codes');
+        Schema::dropIfExists('otps');
     }
 };
