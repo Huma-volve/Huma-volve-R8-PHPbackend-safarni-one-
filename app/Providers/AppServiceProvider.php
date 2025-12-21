@@ -6,8 +6,12 @@ use App\Http\Middleware\EnsureEmailVerified;
 use App\Http\Middleware\RoleMiddleware;
 use App\Interfaces\Repositories\OtpRepositoryInterface;
 use App\Interfaces\Repositories\UserRepositoryInterface;
+use App\Interfaces\Repositories\CategoryRepositoryInterface;
+use App\Interfaces\Repositories\TourRepositoryInterface;
 use App\Repositories\OtpRepository;
 use App\Repositories\UserRepository;
+use App\Repositories\CategoryRepository;
+use App\Repositories\TourRepository;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -24,6 +28,8 @@ class AppServiceProvider extends ServiceProvider
         // Repository bindings
         $this->app->bind(UserRepositoryInterface::class, UserRepository::class);
         $this->app->bind(OtpRepositoryInterface::class, OtpRepository::class);
+        $this->app->bind(CategoryRepositoryInterface::class, CategoryRepository::class);
+        $this->app->bind(TourRepositoryInterface::class, TourRepository::class);
     }
 
     /**
