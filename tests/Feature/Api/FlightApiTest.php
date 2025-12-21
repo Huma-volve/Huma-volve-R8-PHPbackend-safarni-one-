@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api;
 
+use App\Enums\UserRole;
 use App\Models\Airport;
 use App\Models\Airline;
 use App\Models\Aircraft;
@@ -27,8 +28,8 @@ class FlightApiTest extends TestCase
     {
         parent::setUp();
 
-        $this->admin = User::factory()->create(['is_admin' => true]);
-        $this->user = User::factory()->create(['is_admin' => false]);
+        $this->admin = User::factory()->create(['role' => UserRole::ADMIN]);
+        $this->user = User::factory()->create(['role' => UserRole::USER]);
 
         $this->originAirport = Airport::factory()->create(['code' => 'CAI']);
         $this->destinationAirport = Airport::factory()->create(['code' => 'DXB']);

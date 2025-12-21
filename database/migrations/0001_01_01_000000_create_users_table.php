@@ -17,16 +17,21 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('phone')->nullable();
             $table->string('location')->nullable();
-            
+            $table->string('profile_image')->nullable();
+
+
             // Flags
             $table->boolean('is_verified')->default(false);
-            $table->boolean('is_admin')->default(false); 
+            $table->boolean('is_admin')->default(false);
+            $table->string('role')->default('user');
+            $table->string('google_id')->nullable()->unique();
             $table->string('status')->default('active');
-            
+
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();
+            $table->softDeletes();
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
