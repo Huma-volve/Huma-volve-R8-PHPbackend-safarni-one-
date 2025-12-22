@@ -4,40 +4,52 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Review extends Model
 {
-    /** @use HasFactory<\Database\Factories\ReviewFactory> */
     use HasFactory;
 
     protected $fillable = [
         'user_id',
-        'category',     // FK
-        'item_id',      // Polymorphic ID
+        'category',
+        'item_id',
         'title',
-        'comment',      // Review body
-        'rating',       // 1-5 scale
+        'comment',
+        'rating',
         'photos_json',
-        'status',       // pending, approved, rejected
+        'status',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'photos_json' => 'array',
-        ];
-    }
+    protected $casts = [
+        'rating' => 'integer',
+        'photos_json' => 'array',
+    ];
 
-    // Belongs to a User
-    public function user(): BelongsTo
+    // Relationships
+    public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    // Belongs to a Category
-    public function categoryData(): BelongsTo
+    public function car()
     {
-        return $this->belongsTo(Category::class, 'category', 'key');
+        return $this->belongsTo(Car::class, 'item_id')
+            ->where('category', 'car');
+    }
+
+    // Scopes
+    public function scopeApproved($query)
+    {
+        return $query->where('status', 'approved');
+    }
+
+    public function scopeForCar($query, $carId)
+    {
+        return $query->where('item_id', $carId)->where('category', 'car');
+    }
+
+    public function scopeForCategory($query, $category)
+    {
+        return $query->where('category', $category);
     }
 }
