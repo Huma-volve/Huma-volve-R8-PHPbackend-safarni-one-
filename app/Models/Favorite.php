@@ -4,28 +4,37 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Favorite extends Model
 {
-    /** @use HasFactory<\Database\Factories\FavoriteFactory> */
     use HasFactory;
 
     protected $fillable = [
         'user_id',
-        'category', // FK
-        'item_id',  // Polymorphic ID
+        'category',
+        'item_id',
     ];
 
-    // Belongs to a User
-    public function user(): BelongsTo
+    // Relationships
+    public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    // Belongs to a Category
-    public function categoryData(): BelongsTo
+    public function car()
     {
-        return $this->belongsTo(Category::class, 'category', 'key');
+        return $this->belongsTo(Car::class, 'item_id')
+            ->where('category', 'car');
+    }
+
+    // Scopes
+    public function scopeForCar($query, $carId)
+    {
+        return $query->where('category', 'car')->where('item_id', $carId);
+    }
+
+    public function scopeByUser($query, $userId)
+    {
+        return $query->where('user_id', $userId);
     }
 }

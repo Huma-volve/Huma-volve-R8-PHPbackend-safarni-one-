@@ -1,26 +1,14 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Models;
 
-use App\Enums\BookingStatus;
-use App\Enums\PaymentStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Booking extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
         'user_id',
         'category',
@@ -30,65 +18,34 @@ class Booking extends Model
         'status',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
-        return [
-            'total_price' => 'integer',
-            'payment_status' => PaymentStatus::class,
-            'status' => BookingStatus::class,
-        ];
-    }
+    protected $casts = [
+        'total_price' => 'integer',
+    ];
 
-    /**
-     * Get the user who made this booking.
-     */
-    public function user(): BelongsTo
+    // Relationships
+    public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    /**
-     * Get the category of this booking.
-     */
-    public function categoryData(): BelongsTo
+    public function carBooking()
     {
-        return $this->belongsTo(Category::class, 'category', 'key');
+        return $this->hasOne(CarBooking::class);
     }
 
-    /**
-     * Get booking details.
-     */
-    public function detail(): HasOne
+    public function payment()
     {
-        return $this->hasOne(BookingDetail::class);
+        return $this->hasOne(Payment::class);
     }
 
-    /**
-     * Get payment records.
-     */
-    public function payments(): HasMany
+    // Scopes
+    public function scopeForCar($query)
     {
-        return $this->hasMany(Payment::class);
+        return $query->where('category', 'car');
     }
 
-    /**
-     * Get passengers for this booking.
-     */
-    public function passengers(): HasMany
+    public function scopeByStatus($query, $status)
     {
-        return $this->hasMany(Passenger::class);
-    }
-
-    /**
-     * Get formatted total price in EGP.
-     */
-    public function getFormattedPriceAttribute(): string
-    {
-        return number_format($this->total_price / 100, 2) . ' EGP';
+        return $query->where('status', $status);
     }
 }
