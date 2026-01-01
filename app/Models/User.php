@@ -27,6 +27,8 @@ class User extends Authenticatable
         'password',
         'phone',
         'location',
+        'latitude',
+        'longitude',
         'profile_image',
         'status',
         'is_verified',

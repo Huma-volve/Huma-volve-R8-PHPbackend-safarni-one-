@@ -19,7 +19,8 @@ class BookingController extends BaseApiController
      */
     public function __construct(
         protected BookingService $bookingService
-    ) {}
+    ) {
+    }
 
     /**
      * Get authenticated user's bookings.

@@ -8,6 +8,8 @@ use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\SeatController;
 use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\PassengerController;
+use App\Http\Controllers\Api\Hotel\HotelHomepageController;
+use App\Http\Controllers\Api\Hotel\RoomController;
 use App\Http\Controllers\Api\HomeController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -157,4 +159,35 @@ Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(functi
     Route::post('/flights', [FlightController::class, 'store']);
     Route::put('/flights/{flight}', [FlightController::class, 'update']);
     Route::delete('/flights/{flight}', [FlightController::class, 'destroy']);
+});
+
+/*
+|--------------------------------------------------------------------------
+| Hotel Routes
+|--------------------------------------------------------------------------
+*/
+Route::middleware('auth:sanctum')->group(function () {
+    Route::prefix('hotels')->group(function () {
+        Route::get('/recommendations', [HotelHomepageController::class, 'recommendations']);
+        Route::get('/nearby', [HotelHomepageController::class, 'nearby']);
+        Route::get('/search', [HotelHomepageController::class, 'search']);
+
+        // Room Availability
+        Route::get('/{hotel}/rooms', [RoomController::class, 'index']);
+        Route::get('/{hotel}/reviews', [App\Http\Controllers\Api\Hotel\HotelReviewController::class, 'index']);
+        Route::get('/{hotel}/gallery', [App\Http\Controllers\Api\Hotel\HotelGalleryController::class, 'index']);
+    });
+
+    // Rooms Independent Routes
+    Route::prefix('hotels/{hotel}/rooms')->group(function () {
+        Route::get('/{room}', [RoomController::class, 'show']);
+    });
+
+    Route::prefix('hotels')->group(function () {
+        Route::post('/{hotel}/reviews', [App\Http\Controllers\Api\Hotel\HotelReviewController::class, 'store']);
+        Route::post('/{hotel}/gallery', [App\Http\Controllers\Api\Hotel\HotelGalleryController::class, 'store']);
+    });
+
+
+
 });

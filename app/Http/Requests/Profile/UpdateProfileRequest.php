@@ -44,6 +44,8 @@ class UpdateProfileRequest extends FormRequest
             ],
             'phone' => ['sometimes', 'nullable', 'string', 'regex:/^(\+20|0)1[0125][0-9]{8}$/', 'unique:users,phone,' . $userId, 'min:11', 'max:13'],
             'location' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'latitude' => ['sometimes', 'nullable', 'numeric', 'between:-90,90'],
+            'longitude' => ['sometimes', 'nullable', 'numeric', 'between:-180,180'],
             'profile_image' => ['sometimes', 'nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
         ];
     }

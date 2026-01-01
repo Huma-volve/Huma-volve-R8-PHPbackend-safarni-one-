@@ -22,7 +22,8 @@ class BookingService
         protected BookingRepositoryInterface $bookingRepository,
         protected FlightRepositoryInterface $flightRepository,
         protected SeatRepositoryInterface $seatRepository
-    ) {}
+    ) {
+    }
 
     /**
      * Get user bookings.
