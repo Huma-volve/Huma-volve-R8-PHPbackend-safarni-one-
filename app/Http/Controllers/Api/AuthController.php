@@ -114,10 +114,16 @@ class AuthController extends BaseApiController
      *
      * @return JsonResponse
      */
-    public function googleRedirect(): JsonResponse
+    /**
+     * Redirect to Google OAuth.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function googleRedirect(Request $request): JsonResponse
     {
         $clientId = config('services.google.client_id');
-        $redirectUri = config('services.google.redirect');
+        $redirectUri = $request->input('redirect_uri', config('services.google.redirect'));
 
         if (!$clientId || !$redirectUri) {
             return response()->json([
@@ -149,6 +155,7 @@ class AuthController extends BaseApiController
     public function googleCallback(Request $request): JsonResponse
     {
         $code = $request->input('code');
+        $redirectUri = $request->input('redirect_uri', config('services.google.redirect'));
 
         if (!$code) {
             return response()->json([
@@ -162,7 +169,7 @@ class AuthController extends BaseApiController
             $tokenResponse = Http::post('https://oauth2.googleapis.com/token', [
                 'client_id' => config('services.google.client_id'),
                 'client_secret' => config('services.google.client_secret'),
-                'redirect_uri' => config('services.google.redirect'),
+                'redirect_uri' => $redirectUri,
                 'grant_type' => 'authorization_code',
                 'code' => $code,
             ]);

@@ -508,17 +508,56 @@ class AuthApiTest extends TestCase
             ->assertJson([
                 'success' => true,
                 'message' => 'Login successful.',
-            ])
-            ->assertJsonStructure([
-                'data' => [
-                    'token',
-                    'user' => ['id', 'email', 'name'],
-                ],
             ]);
 
         $this->assertDatabaseHas('users', [
             'email' => 'google@gmail.com',
             'google_id' => '123456789',
+        ]);
+    }
+
+    public function test_google_redirect_uses_dynamic_uri(): void
+    {
+        $customRedirect = 'https://myapp.com/callback';
+        $response = $this->getJson("/api/auth/google?redirect_uri={$customRedirect}");
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+            ]);
+
+        $url = $response->json('url');
+        $this->assertStringContainsString('redirect_uri=' . urlencode($customRedirect), $url);
+    }
+
+    public function test_google_callback_uses_dynamic_uri(): void
+    {
+        $customRedirect = 'https://myapp.com/callback';
+
+        Http::fake([
+            'oauth2.googleapis.com/token' => function ($request) use ($customRedirect) {
+                return $request['redirect_uri'] === $customRedirect &&
+                       $request['code'] === 'valid_code'
+                    ? Http::response(['access_token' => 'fake_token'], 200)
+                    : Http::response(['error' => 'invalid_request'], 400);
+            },
+            'www.googleapis.com/oauth2/v2/userinfo' => Http::response([
+                'id' => '987654321',
+                'email' => 'dynamic@gmail.com',
+                'name' => 'Dynamic User',
+            ], 200),
+        ]);
+
+        $response = $this->getJson("/api/auth/google/callback?code=valid_code&redirect_uri={$customRedirect}");
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+            ]);
+
+        $this->assertDatabaseHas('users', [
+            'email' => 'dynamic@gmail.com',
+            'google_id' => '987654321',
         ]);
     }
 

@@ -180,13 +180,20 @@
                         "method": "GET",
                         "header": [],
                         "url": {
-                            "raw": "{{base_url}}/auth/google",
+                            "raw": "{{base_url}}/auth/google?redirect_uri=https://my-frontend.com/callback",
                             "host": [
                                 "{{base_url}}"
                             ],
                             "path": [
                                 "auth",
                                 "google"
+                            ],
+                            "query": [
+                                {
+                                    "key": "redirect_uri",
+                                    "value": "https://my-frontend.com/callback",
+                                    "description": "Optional: Custom redirect URI for the client (Mobile/Web)"
+                                }
                             ]
                         },
                         "description": "Get the Google OAuth redirect URL for social login."
@@ -337,7 +344,7 @@
                         "method": "GET",
                         "header": [],
                         "url": {
-                            "raw": "{{base_url}}/auth/google/callback?code=AUTH_CODE_HERE",
+                            "raw": "{{base_url}}/auth/google/callback?code=AUTH_CODE_HERE&redirect_uri=https://my-frontend.com/callback",
                             "host": [
                                 "{{base_url}}"
                             ],
@@ -351,6 +358,11 @@
                                     "key": "code",
                                     "value": "AUTH_CODE_HERE",
                                     "description": "The authorization code returned by Google"
+                                },
+                                {
+                                    "key": "redirect_uri",
+                                    "value": "https://my-frontend.com/callback",
+                                    "description": "MUST match the redirect_uri used in the initial request"
                                 }
                             ]
                         },
