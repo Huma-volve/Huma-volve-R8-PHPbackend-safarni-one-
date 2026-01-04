@@ -54,6 +54,7 @@ class DatabaseSeeder extends Seeder
             AirlineSeeder::class,
             AircraftSeeder::class,
             FlightSeeder::class,
+            TourSeeder::class,
         ]);
     }
 }
