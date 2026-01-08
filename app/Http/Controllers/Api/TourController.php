@@ -42,9 +42,9 @@ class TourController extends Controller
         return TourResource::collection($tours);
     }
 
-    public function show(string $slug): JsonResponse
+    public function show(Tour $tour): JsonResponse
     {
-        $tour = $this->tourService->getTourBySlug($slug);
+        $tour = $this->tourService->getTourById($tour->id);
         if (!$tour) {
             return $this->notFoundResponse('Tour not found');
         }

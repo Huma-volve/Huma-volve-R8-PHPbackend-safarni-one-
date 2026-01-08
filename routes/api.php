@@ -196,7 +196,7 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 Route::prefix('tours')->group(function () {
     Route::get('/available', [TourController::class, 'index']);
-    Route::get('/', [TourController::class, 'index']);
+    Route::get('/', [TourController::class, 'show']);
     Route::get('/recommendations', [TourController::class, 'recommendations']);
     Route::get('/destinations', [TourController::class, 'destination']);
     Route::get('/{tour}', [TourController::class, 'show']);
